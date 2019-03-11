@@ -1,0 +1,12 @@
+# Starrios gitignore
+
+bin/
+obj/
+
+bochsout.txt
+parport.out
+
+# Windows gitignore
+
+Thumbs.db
+Desktop.ini

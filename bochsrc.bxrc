@@ -1,0 +1,15 @@
+# http://bochs.sourceforge.net/doc/docbook/user/bochsrc.html
+
+romimage: file="$BXSHARE/BIOS-bochs-latest"
+vgaromimage: file="$BXSHARE/VGABIOS-lgpl-latest"
+
+memory: guest=32, host=32
+
+floppya: 1_44=bin/floppy.img, status=inserted
+boot: floppy
+#ata0-master: type=disk, path=bin/floppy.img, mode=flat, cylinders=64, heads=9, spt=5
+#boot: disk
+
+log: bochsout.txt
+
+mouse: enabled=0
