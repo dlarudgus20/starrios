@@ -2,7 +2,7 @@ TARGET_NAME := kernel
 all: build
 
 include ../mkfiles/toolset.mk
-include ../mkfiles/dirs.mk
+include ../mkfiles/conf.mk
 include ../mkfiles/rules.mk
 
 TARGET_BINARY := $(DIR_BIN)/starrios.sys

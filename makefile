@@ -1,11 +1,12 @@
 all: build
 
 include mkfiles/toolset.mk
-include mkfiles/dirs.mk
+include mkfiles/conf.mk
 
 TOOLS_EDIMG := tools/edimg/edimg
 
 BOOTLOADER_BOOT := bootloader/$(DIR_BIN)/boot.bin
+BOOTLOADER_CFG := bootloader/boot.cfg
 BOOTLOADER_STAGE := bootloader/$(DIR_BIN)/stage.bin
 KERNEL_BINARY := kernel/$(DIR_BIN)/starrios.sys
 
@@ -31,7 +32,9 @@ run: build
 
 dbg: debug
 debug: build
-	$(TOOLSET_BOCHS) -qf $(BOCHSRC) "debug_symbols: file=\"bootloader/$(DIR_OBJ)/bootloader.sym\""
+	$(TOOLSET_BOCHS) -qf $(BOCHSRC) \
+		"debug_symbols: file=\"bootloader/$(DIR_OBJ)/bootloader.sym\""
+		"debug_symbols: file=\"kernel/$(DIR_OBJ)/starrios.sym\""
 
 mostlyclean:
 	make mostlyclean -C bootloader
@@ -53,5 +56,6 @@ $(TARGET_IMAGE): $(BOOTLOADER_BOOT) $(BOOTLOADER_STAGE) $(KERNEL_BINARY)
 	$(TOOLS_EDIMG) imgin:$(RAW_IMAGE) \
 		wbinimg src:$(BOOTLOADER_BOOT) len:512 from:0 to:0 \
 		copy from:$(BOOTLOADER_STAGE) to:@: \
+		copy from:$(BOOTLOADER_CFG) to:@: \
 		copy from:$(KERNEL_BINARY) to:@: \
 		imgout:$(TARGET_IMAGE)

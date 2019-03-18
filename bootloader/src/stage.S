@@ -1,66 +1,25 @@
+.extern __sbss_start, __sbss_size
+.extern fs_init
+
 .global stage_entry
 
-.section .stage, "awx"
+.section .stage, "awx", @progbits
 .code16
 
 stage_entry:
-
-    // enable A20 gate
-    cli
-    call a20_check
-    test %ax, %ax
-    jnz a20_ok
-
-    mov $0x2401, %ax
-    int $0x15
-    jc a20_fail
-    test $0, %ax
-    jnz a20_fail
-
-    call a20_check
-    test %ax, %ax
-    jnz a20_ok
-
-a20_fail:
-    sti
-    mov $1f, %si
-    call print
-0:
-    hlt
-    jmp 0b
-1: .asciz "Cannot enable A20 gate"
-
-// ax=0 if a20 is disabled; ax=1 if a20 is enabled
-a20_check:
-    push %ds
-    push %es
-    push %si
-    push %di
-
+    cld
+    mov $__sbss_start, %di
+    mov $__sbss_size / 2, %cx
     xor %ax, %ax
-    mov %ax, %es // es := 0x0000
-    not %ax
-    mov %ax, %ds // ds := 0xffff
-    mov $0x0500, %di
-    mov $0x0510, %si
+    rep movsw
 
-    mov %es:(%di), %dh
-    mov %ds:(%si), %dl
-    movb $0x00, %es:(%di)
-    movb $0xff, %ds:(%si)
-    cmpb $0xff, %es:(%di)
+    call fs_init
+    test %ax, %ax
+    jnz panic16
 
-    mov %dh, %es:(%di)
-    mov %dl, %ds:(%si)
-    mov $0, %ax
-    je 0f
-    mov $1, %ax
-0:
-    pop %di
-    pop %si
-    pop %es
-    pop %ds
-    ret
+    call a20_enable
+    test %ax, %ax
+    jnz panic16
 
 // ds:si : string to print
 print:
@@ -78,14 +37,13 @@ print:
     pop %bx
     ret
 
-a20_ok:
-    lgdt gdtr
-    mov %cr0, %eax
-    or $1, %eax
-    and $0x7fffffff, %eax
-    mov %eax, %cr0
-    jmp .+2
-    ljmp $0x18, $pm_start
+panic16:
+    mov %ax, %si
+    call print
+    sti
+0:
+    hlt
+    jmp 0b
 
 .code32
 
@@ -171,7 +129,7 @@ pm_start:
     ljmp $0x08, $lm_start
 
 panic32:
-    mov $2f, %esi
+    mov $p32_msg, %esi
     mov $0xb8000, %edi
     mov $0x07, %ah
     cld
@@ -184,7 +142,6 @@ panic32:
 1:
     hlt
     jmp 1b
-2: .asciz "boot sequence failed... system panic."
 
 .code64
 
@@ -197,7 +154,7 @@ lm_start:
     mov %rax, %ss
     mov $0x7000, %rsp
 
-    mov $2f, %rsi
+    mov $lm_greet, %rsi
     mov $0xb8000, %rdi
     mov $0x07, %ah
     cld
@@ -210,7 +167,11 @@ lm_start:
 1:
     hlt
     jmp 1b
-2: .asciz "welcome to 64bit long mode."
+
+.section .sdata, "aw", @progbits
+
+p32_msg: .asciz "boot sequence failed... system panic."
+lm_greet: .asciz "welcome to 64bit long mode."
 
 gdtr:
     .word gdt_end - gdt - 1

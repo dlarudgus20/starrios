@@ -4,7 +4,7 @@ all: build
 OBJDUMP_FLAGS := -Mintel,i8086
 
 include ../mkfiles/toolset.mk
-include ../mkfiles/dirs.mk
+include ../mkfiles/conf.mk
 include ../mkfiles/rules.mk
 
 BOOT := $(DIR_BIN)/boot.bin

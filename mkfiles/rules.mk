@@ -2,18 +2,11 @@ ifndef TARGET_NAME
 $(error target name must be specified)
 endif
 
-CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 \
-	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter -fpack-struct
-ASFLAGS +=
-LDFLAGS += -ffreestanding -nostdlib
-OBJDUMP_FLAGS +=
-NM_FLAGS += --line-numbers --print-size --print-armap --numeric-sort
-
 C_SOURCES := $(wildcard $(DIR_SRC)/*.c)
 C_OBJECTS := $(patsubst $(DIR_SRC)/%.c, $(DIR_OBJ)/%.c.o, $(C_SOURCES))
 
-AS_SOURCES := $(wildcard $(DIR_SRC)/*.s)
-AS_OBJECTS := $(patsubst $(DIR_SRC)/%.s, $(DIR_OBJ)/%.s.o, $(AS_SOURCES))
+AS_SOURCES := $(wildcard $(DIR_SRC)/*.S)
+AS_OBJECTS := $(patsubst $(DIR_SRC)/%.S, $(DIR_OBJ)/%.S.o, $(AS_SOURCES))
 
 LD_SCRIPT := $(DIR_SRC)/linker.ld
 
@@ -44,7 +37,7 @@ $(DIR_OBJ)/%.c.o: $(DIR_SRC)/%.c | $(DIRS)
 	$(TOOLSET_GCC) $(CFLAGS) -c $< -o $@
 	$(TOOLSET_OBJDUMP) $(OBJDUMP_FLAGS) -D $@ > $(DIR_OBJ)/$*.c.dump
 
-$(DIR_OBJ)/%.s.o: $(DIR_SRC)/%.s | $(DIRS)
+$(DIR_OBJ)/%.S.o: $(DIR_SRC)/%.S | $(DIRS)
 	$(TOOLSET_GCC) $(ASFLAGS) -c $< -o $@ \
-		-Xassembler -a=$(DIR_OBJ)/$*.s.lst
-	$(TOOLSET_OBJDUMP) $(OBJDUMP_FLAGS) -D $@ > $(DIR_OBJ)/$*.s.dump
+		-Xassembler -a=$(DIR_OBJ)/$*.S.lst
+	$(TOOLSET_OBJDUMP) $(OBJDUMP_FLAGS) -D $@ > $(DIR_OBJ)/$*.S.dump

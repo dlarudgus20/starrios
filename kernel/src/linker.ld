@@ -10,28 +10,30 @@ SECTIONS
     __higher_half_displacement = 0xffffffffff000000 - 0x00100000;
     . += __higher_half_displacement;
 
-    .text ALIGN(64) : AT(ADDR(.text) - __higher_half_displacement)
+    .text ALIGN(512) : AT(ADDR(.text) - __higher_half_displacement)
     {
-        *(.text .text.*)
+        *(.text .stub .text.* .gnu.linkonce.t.*)
     }
 
-    .rodata ALIGN(64) : AT(ADDR(.rodata) - __higher_half_displacement)
+    .rodata ALIGN(512) : AT(ADDR(.rodata) - __higher_half_displacement)
     {
-        *(.rodata .rodata.*)
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+        *(.rodata1)
     }
 
-    .data ALIGN(64) : AT(ADDR(.data) - __higher_half_displacement)
+    .data ALIGN(512) : AT(ADDR(.data) - __higher_half_displacement)
     {
-        *(.data .data.*)
+        *(.data .data.* .gnu.linkonce.d.*)
+        *(.data1)
     }
 
-    __bss_start = .;
-    .bss ALIGN(64) : AT(ADDR(.bss) - __higher_half_displacement)
+    .bss ALIGN(512) : AT(ADDR(.bss) - __higher_half_displacement)
     {
+        __bss_start = .;
         *(COMMON)
-        *(.bss .bss.*)
-        . = ALIGN(64);
+        *(.bss .bss.* .gnu.linkonce.b.*)
+        . = ALIGN(16);
+        __bss_end = .;
     }
-    __bss_end = .;
     __bss_size = __bss_end - __bss_start;
 }

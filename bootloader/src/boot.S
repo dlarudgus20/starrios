@@ -1,22 +1,16 @@
 .global reads, lba_packet
 
-.set drive, 40
-.set chs.sectors, 41
-.set chs.heads, 42
-.set chs.cylinders, 43
-.set lbapck_size, -16
-.set lbapck_count, -14
-.set lbapck_addr, -12
-.set lbapck_add1, -10
-.set lbapck_lba, -8
-.set lbapck_lba1, -6
-.set lbapck_lba2, -4
-.set lbapck_lba3, -2
-
 .extern stage_entry
 .extern __stage_start, __stage_sectors
 
-.section .boot, "awx"
+#include "boot.h"
+
+#define off_drive 88
+#define off_sectors 89
+#define off_heads 90
+#define off_cylinders 91
+
+.section .boot, "awx", @progbits
 .code16
 
 // FAT BPB
@@ -52,8 +46,8 @@ start:
     mov %ax, %ds
     mov %ax, %ss
     mov $0x7000, %sp
-    mov $tail, %bp
-    mov %dl, drive(%bp)
+    mov $lba_packet, %bp
+    mov %dl, off_drive(%bp)
     sti
 
     // check LBA extension
@@ -75,7 +69,7 @@ nolba:
     // cl[6:7], ch -> max cylinder index
     // dh -> max head index
     mov $0x08, %ah
-    mov drive(%bp), %dl
+    mov off_drive(%bp), %dl
     xor %di, %di
     mov %di, %es
     int $0x13
@@ -84,17 +78,17 @@ nolba:
     inc %ch
     inc %dh
     xchg %ch, %dh
-    mov %cx, chs.sectors(%bp)
-    mov %dh, chs.cylinders(%bp)
+    mov %cx, off_sectors(%bp)
+    mov %dh, off_cylinders(%bp)
     jmp done
 
 floppy:
     // try to failback to floppy
-    mov drive(%bp), %al
+    mov off_drive(%bp), %al
     test $0xfe, %al
     jnz panic
-    movw $0x0212, chs.sectors(%bp)
-    movb $80, chs.cylinders(%bp)
+    movw $0x0212, off_sectors(%bp)
+    movb $80, off_cylinders(%bp)
 
 done:
     call reads
@@ -124,8 +118,8 @@ reads:
 reads_lba:
     push %si
     mov $0x42, %ah
-    mov $tail, %si
-    mov drive(%si), %dl
+    mov $lba_packet, %si
+    mov off_drive(%si), %dl
     mov $lba_packet, %si
     int $0x13
     pop %si
@@ -134,7 +128,7 @@ reads_lba:
 reads_chs:
     push %es
     pusha
-    mov $tail, %bp
+    mov $lba_packet, %bp
 
     // int 0x13, ah=0x02
     // ax=count, ch=cyl[0:7], cl=cyl[8:9]+sec, dh=head, dl=drive, es:bx=address
@@ -146,20 +140,20 @@ reads_chs:
     mov lbapck_lba(%bp), %eax
     xor %edx, %edx
     xor %ebx, %ebx
-    mov chs.sectors(%bp), %bl
+    mov off_sectors(%bp), %bl
     mov %bx, %si
     div %ebx
 
     mov %dl, %cl
     inc %cl
     xor %dx, %dx
-    mov chs.heads(%bp), %bl
+    mov off_heads(%bp), %bl
     div %ebx
 
     mov %dl, %dh
     mov %si, %bx
     shl $2, %bx
-    mov chs.cylinders(%bp), %bl
+    mov off_cylinders(%bp), %bl
     cmp %ebx, %eax
     jae err
     mov %al, %ch
@@ -173,7 +167,7 @@ reads_chs:
     shl $12, %ax
     mov %ax, %es
 
-    mov drive(%bp), %dl
+    mov off_drive(%bp), %dl
     mov lbapck_count(%bp), %di
 repeat:
     test %di, %di
@@ -190,7 +184,7 @@ retry:
     mov %ax, %es
 
     inc %cl
-    movzx chs.sectors(%bp), %ax
+    movzx off_sectors(%bp), %ax
     mov %ax, %si
     mov %cl, %ah
     and $0x3f3f, %ax
@@ -200,7 +194,7 @@ retry:
     and $0xc0, %ch
     mov $1, %cl
     inc %dh
-    cmp chs.heads(%bp), %dh
+    cmp off_heads(%bp), %dh
     jb 1f
 
     xor %dh, %dh
@@ -210,7 +204,7 @@ retry:
 0:
     mov %si, %ax
     shl $2, %ax
-    mov %al, chs.cylinders(%bp)
+    mov %al, off_cylinders(%bp)
     mov %ax, %si
     mov %ch, %al
     mov %cl, %ah
@@ -245,7 +239,6 @@ lba_packet:
 .word 0
 .word 0
 
-tail:
 .long 0    // disk signature
 .word 0
 
@@ -255,3 +248,10 @@ tail:
 .quad 0, 0  // partition #4
 
 .byte 0x55, 0xaa
+
+.section .bootbss, "aw", @nobits
+
+drive: .byte 0
+chs_sectors: .byte 0
+chs_heads: .byte 0
+chs_cylinders: .byte 0
