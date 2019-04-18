@@ -1,6 +1,15 @@
+#include "gdt.h"
+#include "idt.h"
+#include "terminal.h"
+
 void kmain(void)
 {
-    char *video = (char *)0xb8000;
+    gdt_table_init();
+    idt_table_init();
+
+    __asm__ __volatile__ ( "int $0x42" );
+
+    char *video = (char *)0xffff80001feb8000;
     const char *msg = "hello kmain";
 
     for (const char* ptr = msg; *ptr != '\0'; ++ptr)

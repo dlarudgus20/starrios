@@ -6,9 +6,7 @@ include mkfiles/conf.mk
 TOOLS_EDIMG := tools/edimg/edimg
 
 BOOTLOADER_BOOT := bootloader/$(DIR_BIN)/boot.bin
-BOOTLOADER_CFG := bootloader/boot.cfg
-BOOTLOADER_STAGE := bootloader/$(DIR_BIN)/stage.bin
-KERNEL_BINARY := kernel/$(DIR_BIN)/starrios.sys
+KERNEL_BINARY := kernel/$(DIR_BIN)/kernel.sys
 
 RAW_IMAGE := img/raw_floppy.img
 TARGET_IMAGE := $(DIR_BIN)/floppy.img
@@ -16,7 +14,7 @@ TARGET_IMAGE := $(DIR_BIN)/floppy.img
 QEMU_FLAGS := -L . -m 64 -fda $(TARGET_IMAGE) -boot a -localtime -M pc
 BOCHSRC := bochsrc.bxrc
 
-.PHONY: all build re rebuild run rerun dbg debug mostlyclean clean distclean
+.PHONY: all build re rebuild run rerun dbg debug bochs mostlyclean clean distclean
 
 build:
 	make -C tools
@@ -32,9 +30,10 @@ run: build
 
 dbg: debug
 debug: build
-	$(TOOLSET_BOCHS) -qf $(BOCHSRC) \
-		"debug_symbols: file=\"bootloader/$(DIR_OBJ)/bootloader.sym\""
-		"debug_symbols: file=\"kernel/$(DIR_OBJ)/starrios.sym\""
+	$(TOOLSET_QEMU) $(QEMU_FLAGS) -gdb tcp:127.0.0.1:1234 -S
+
+bochs: build
+	CONFIG=$(CONFIG) $(TOOLSET_BOCHS) -qf $(BOCHSRC)
 
 mostlyclean:
 	make mostlyclean -C bootloader
@@ -55,7 +54,5 @@ $(TARGET_IMAGE): $(BOOTLOADER_BOOT) $(BOOTLOADER_STAGE) $(KERNEL_BINARY)
 	mkdir -p $(DIR_BIN)
 	$(TOOLS_EDIMG) imgin:$(RAW_IMAGE) \
 		wbinimg src:$(BOOTLOADER_BOOT) len:512 from:0 to:0 \
-		copy from:$(BOOTLOADER_STAGE) to:@: \
-		copy from:$(BOOTLOADER_CFG) to:@: \
 		copy from:$(KERNEL_BINARY) to:@: \
 		imgout:$(TARGET_IMAGE)

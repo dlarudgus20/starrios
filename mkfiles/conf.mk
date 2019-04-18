@@ -1,9 +1,9 @@
 CONFIG ?= debug
 
-CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 \
-	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter -fpack-struct
+CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fpack-struct \
+	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter
 ASFLAGS +=
-LDFLAGS += -ffreestanding -nostdlib
+LDFLAGS += -ffreestanding -nostdlib -Xlinker --orphan-handling=error
 OBJDUMP_FLAGS +=
 NM_FLAGS += --line-numbers --print-size --print-armap --numeric-sort
 
@@ -20,12 +20,15 @@ endif
 DIR_SRC := src
 DIR_BIN := bin/$(CONFIG)
 DIR_OBJ := obj/$(CONFIG)
+DIR_DEP := dep/$(CONFIG)
 DIRS := $(DIR_BIN) $(DIR_OBJ)
 
 $(DIRS):
 	mkdir -p $(DIR_BIN)
 	mkdir -p $(DIR_OBJ)
+	mkdir -p $(DIR_DEP)
 
 clean_dirs:
 	-rm -rf $(DIR_BIN)
 	-rm -rf $(DIR_OBJ)
+	-rm -rf $(DIR_DEP)

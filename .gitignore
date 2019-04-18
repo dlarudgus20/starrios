@@ -2,6 +2,7 @@
 
 bin/
 obj/
+dep/
 
 bochsout.txt
 parport.out
