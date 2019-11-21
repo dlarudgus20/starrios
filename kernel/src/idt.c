@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "gdt.h"
 #include "interrupt.h"
 
 struct idt g_idt_table[IDT_TABLE_COUNT];
@@ -7,7 +8,7 @@ void idt_table_init(void)
 {
     for (unsigned i = 0; i < IDT_TABLE_COUNT; ++i)
     {
-        idt_init(g_idt_table + i, 0x08, int_unknown);
+        idt_init(g_idt_table + i, KERNEL_CODE_SEG, int_unknown);
     }
 
     static void (* const handlers[])() = {
@@ -35,10 +36,10 @@ void idt_table_init(void)
     };
     for (unsigned i = 0; i < sizeof(handlers) / sizeof(handlers[0]); ++i)
     {
-        idt_init(g_idt_table + i, 0x08, handlers[i]);
+        idt_init(g_idt_table + i, KERNEL_CODE_SEG, handlers[i]);
     }
 
-    idt_init(g_idt_table + 0, 0x08, int_except00);
+    idt_init(g_idt_table + 0, KERNEL_CODE_SEG, int_except00);
 
     uint64_t idtr[2] = {
         ((uint64_t)g_idt_table << 16) | (IDT_TABLE_COUNT * sizeof(struct idt) - 1),

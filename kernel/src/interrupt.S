@@ -52,6 +52,7 @@ int_\name\():
     iretq
 .endm
 
+// CPU Exceptions
 make_handler 0 unknown
 make_handler 0 except00     // Divide-by-Zero Error
 make_handler 0 except01     // Debug Exception
@@ -61,16 +62,19 @@ make_handler 0 except04     // Overflow
 make_handler 0 except05     // Bound Range Exceeded
 make_handler 0 except06     // Invalid Opcode
 make_handler 0 except07     // Device Not Available
-make_handler 0 except08     // Double Fault
+make_handler 1 except08     // Double Fault
 make_handler 0 except09     // Coprocessor Segment Overrun
-make_handler 0 except0a     // Invalid TSS
-make_handler 0 except0b     // Segment Not Present
-make_handler 0 except0c     // Stack Segment Fault
-make_handler 0 except0d     // General Protection Fault
-make_handler 0 except0e     // Page Fault
+make_handler 1 except0a     // Invalid TSS
+make_handler 1 except0b     // Segment Not Present
+make_handler 1 except0c     // Stack Segment Fault
+make_handler 1 except0d     // General Protection Fault
+make_handler 1 except0e     // Page Fault
 make_handler 0 except0f     // (reserved)
 make_handler 0 except10     // x87 Floating-point Exception
-make_handler 0 except11     // Alignment Check
+make_handler 1 except11     // Alignment Check
 make_handler 0 except12     // Machine Check
 make_handler 0 except13     // SIMD Floating-point Exception
 make_handler 0 except14     // Virtualization Exception
+
+// Device Interrupts
+make_handler 0 keyboard

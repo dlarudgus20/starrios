@@ -1,5 +1,5 @@
 #ifndef STAGE_SECTORS
-#define STAGE_SECTORS 20
+#error STAGE_SECTORS is not defined
 #endif
 
 .section .boot, "awx", @progbits

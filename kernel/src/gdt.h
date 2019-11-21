@@ -6,6 +6,12 @@
 
 enum
 {
+    KERNEL_CODE_SEG = 0x08,
+    KERNEL_DATA_SEG = 0x10,
+};
+
+enum
+{
     GDT_TABLE_COUNT = 8192,
 
     GDT_SEGTYPE_DATA_RO = 0x0,

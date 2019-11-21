@@ -71,7 +71,6 @@ a20_check:
     ret
 
 panic16:
-    sti
     cld
 0:
     lodsb

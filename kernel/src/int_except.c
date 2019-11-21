@@ -5,12 +5,13 @@
 static void except_panic(struct interrupt_context* rsp, const char* msg, const char* errdesc)
 {
     char buf[1024];
-    snprintf(buf, sizeof(buf), "%s Exception occur!!!\n",
+    snprintf(buf, sizeof(buf),
+        "%s Exception occur!!!\n"
         "cs(%p) rip(%p) rflag(%p) ss2(%p) rsp2(%p) "
         "rax(%p) rbx(%p) rcx(%p) rdx(%p) rsi(%p) rdi(%p) rbp(%p) "
         "r8(%p) r9(%p) r10(%p) r11(%p) r12(%p) r13(%p) r14(%p) r15(%p) "
-        "errcode(%s%p)", msg,
-        rsp->cs, rsp->rip, rsp->rflag, rsp->ss2, rsp->rsp2,
+        "errcode(%s%p)",
+        msg, rsp->cs, rsp->rip, rsp->rflag, rsp->ss2, rsp->rsp2,
         rsp->rax, rsp->rbx, rsp->rcx, rsp->rdx, rsp->rsi, rsp->rdi, rsp->rbp,
         rsp->r8, rsp->r9, rsp->r10, rsp->r11, rsp->r12, rsp->r13, rsp->r14, rsp->r15,
         errdesc, rsp->errcode);

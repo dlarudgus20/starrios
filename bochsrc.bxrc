@@ -10,7 +10,7 @@ boot: floppy
 #ata0-master: type=disk, path=bin/$CONFIG/floppy.img, mode=flat, cylinders=64, heads=9, spt=5
 #boot: disk
 
-debug_symbols: file="bootloader/obj/$CONFIG/bootloader.sym"
+debug_symbols: file="bootloader/obj/$CONFIG/boot.sym"
 debug_symbols: file="kernel/obj/$CONFIG/kernel.sym"
 
 log: bochsout.txt

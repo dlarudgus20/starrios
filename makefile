@@ -6,6 +6,7 @@ include mkfiles/conf.mk
 TOOLS_EDIMG := tools/edimg/edimg
 
 BOOTLOADER_BOOT := bootloader/$(DIR_BIN)/boot.bin
+KERNEL_ELF := kernel/$(DIR_BIN)/kernel.elf
 KERNEL_BINARY := kernel/$(DIR_BIN)/kernel.sys
 
 RAW_IMAGE := img/raw_floppy.img
@@ -14,12 +15,12 @@ TARGET_IMAGE := $(DIR_BIN)/floppy.img
 QEMU_FLAGS := -L . -m 64 -fda $(TARGET_IMAGE) -boot a -localtime -M pc
 BOCHSRC := bochsrc.bxrc
 
-.PHONY: all build re rebuild run rerun dbg debug bochs mostlyclean clean distclean
+.PHONY: all build re rebuild run rerun dbg debug gdb bochs mostlyclean clean distclean
 
 build:
 	make -C tools
-	make build -C bootloader
 	make build -C kernel
+	make build -C bootloader
 	make $(TARGET_IMAGE)
 
 re: rebuild
@@ -30,7 +31,11 @@ run: build
 
 dbg: debug
 debug: build
-	$(TOOLSET_QEMU) $(QEMU_FLAGS) -gdb tcp:127.0.0.1:1234 -S
+	$(TOOLSET_QEMU) $(QEMU_FLAGS) -gdb tcp:127.0.0.1:1234 \
+		-fw_cfg name=opt/org.starrios.debug,string=1
+
+gdb:
+	$(TOOLSET_GDB) $(KERNEL_ELF) "-ex=target remote :1234"
 
 bochs: build
 	CONFIG=$(CONFIG) $(TOOLSET_BOCHS) -qf $(BOCHSRC)

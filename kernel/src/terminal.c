@@ -36,15 +36,15 @@ void term_set_status(enum term_status status)
 
 static void scroll_impl(uint8_t count)
 {
-    uint8_t* video = (uint8_t*)0xffff80001feb8050;
+    uint8_t* video = (uint8_t*)0xffff80001feb80a0;
     unsigned entries = (s_term.row_size - count) << s_term.col_bits;
     memmove(video, video + 2 * (entries << s_term.col_bits), 2 * entries);
 }
 
 static void put_entry_impl(char c, uint8_t color, uint16_t x, uint16_t y)
 {
-    uint8_t* video = (uint8_t*)0xffff80001feb8050;
-    video[y * 80 + x] = (color << 8) | (uint8_t)c;
+    uint16_t* video = (uint16_t*)0xffff80001feb80a0;
+    video[y * 80 + x] = (uint8_t)c | (color << 8);
 }
 
 void term_scroll(uint8_t count)

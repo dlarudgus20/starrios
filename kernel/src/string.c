@@ -1,5 +1,53 @@
 #include "string.h"
 
+void* memset(void* dest, int ch, size_t count)
+{
+    char* d = (char*)dest;
+    char* e = d + count;
+    while (d < e)
+    {
+        *d++ = ch;
+    }
+    return dest;
+}
+
+void* memcpy(void* restrict dest, const void* restrict src, size_t count)
+{
+    const char* s = (const char*)src;
+    char* d = (char*)dest;
+    char* e = d + count;
+    while (d < e)
+    {
+        *d++ = *s++;
+    }
+    return dest;
+}
+
+void* memmove(void* dest, const void* src, size_t count)
+{
+    const char* s = (const char*)src;
+    char* d = (char*)dest;
+    if (d <= s)
+    {
+        char* e = d + count;
+        while (d < e)
+        {
+            *d++ = *s++;
+        }
+    }
+    else
+    {
+        char* e = d;
+        d += count - 1;
+        s += count - 1;
+        while (d >= e)
+        {
+            *d-- = *s--;
+        }
+    }
+    return dest;
+}
+
 int isalpha(int c)
 {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');

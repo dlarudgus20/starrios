@@ -1,22 +1,47 @@
 #include "gdt.h"
 #include "idt.h"
+#include "pic.h"
+#include "keyboard.h"
 #include "terminal.h"
+#include "intr_queue.h"
+#include "asm.h"
+
+static void intr_loop(void);
 
 void kmain(void)
 {
+    term_init();
+
     gdt_table_init();
     idt_table_init();
 
-    __asm__ __volatile__ ( "int $0x42" );
+    pic_init();
+    intr_queue_init();
 
-    char *video = (char *)0xffff80001feb8000;
-    const char *msg = "hello kmain";
+    keyboard_init();
 
-    for (const char* ptr = msg; *ptr != '\0'; ++ptr)
+    pic_set_mask(~(PIC_MASKBIT_SLAVE | PIC_MASKBIT_KEYBOARD));
+    asm_sti();
+
+    intr_loop();
+}
+
+static void intr_loop(void)
+{
+    uint32_t value;
+    while (1)
     {
-        *video++ = *ptr;
-        *video++ = 0x7d;
-    }
+        while (intr_queue_pop_syslock(&value))
+        {
+            uint32_t data = value & INTR_QUEUE_MASK_DATA;
+            switch (value & INTR_QUEUE_MASK_FLAG)
+            {
+                case INTR_QUEUE_FLAG_KEYBOARD:
+                    intr_queue_keyboard(data);
+                    break;
+            }
+        }
 
-    while (1) __asm__ __volatile__ ( "hlt" );
+        asm_hlt();
+    }
 }

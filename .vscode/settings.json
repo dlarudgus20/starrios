@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "gdt.h": "c"
+        "gdt.h": "c",
+        "terminal.h": "c",
+        "array": "c",
+        "vector": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

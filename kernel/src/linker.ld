@@ -5,6 +5,7 @@ SECTIONS
     .startup 0x8000 :
     {
         *(.startup)
+        . = ALIGN(16);
     }
 
     __higher_half_displacement = 0xffff800000000000 - .;
@@ -48,11 +49,7 @@ SECTIONS
     __bss_size = __bss_end - __bss_start;
 
     . = 0;
-    .debug_info : { *(.debug_info) }
-    .debug_abbrev : { *(.debug_abbrev) }
-    .debug_aranges : { *(.debug_aranges) }
-    .debug_line : { *(.debug_line) }
-    .debug_str : { *(.debug_str) }
+    .debug : { *(.debug*) }
     .comment : { *(.comment) }
 
     /DISCARD/ :

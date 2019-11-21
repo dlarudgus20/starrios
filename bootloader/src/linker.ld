@@ -7,6 +7,8 @@ SECTIONS
         *(.boot)
     }
 
+    .debug : { *(.debug*) }
+
     /DISCARD/ :
     {
         *(.text .data .bss)
