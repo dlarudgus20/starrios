@@ -41,12 +41,14 @@ void idt_table_init(void)
 
     idt_init(g_idt_table + 0, KERNEL_CODE_SEG, int_except00);
 
-    uint64_t idtr[2] = {
-        ((uint64_t)g_idt_table << 16) | (IDT_TABLE_COUNT * sizeof(struct idt) - 1),
-        (uint64_t)g_idt_table >> 48
-    };
-    __asm__ __volatile__ ( "lidt %0" : : "m"(*idtr) );
+    struct {
+        uint16_t limit;
+        void* base;
+    } __attribute__((packed)) idtr;
+    idtr.limit = IDT_TABLE_COUNT * sizeof(struct idt) - 1;
+    idtr.base = g_idt_table;
 
+    __asm__ __volatile__ ( "lidt %0" : : "m"(idtr) );
 }
 
 void idt_init(struct idt* idt, uint16_t segment, void* addr)

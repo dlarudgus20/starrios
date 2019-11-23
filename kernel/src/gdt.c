@@ -10,10 +10,13 @@ void gdt_table_init(void)
     gdt_init(g_gdt_table + 1, GDT_SEGTYPE_CODE_XO, 0);
     gdt_init(g_gdt_table + 2, GDT_SEGTYPE_DATA_RW, 0);
 
-    uint64_t gdtr[2] = {
-        ((uint64_t)g_gdt_table << 16) | (GDT_TABLE_COUNT * sizeof(struct gdt) - 1),
-        (uint64_t)g_gdt_table >> 48
-    };
+    struct {
+        uint16_t limit;
+        void* base;
+    } __attribute__((packed)) gdtr;
+    gdtr.limit = GDT_TABLE_COUNT * sizeof(struct gdt) - 1;
+    gdtr.base = g_gdt_table;
+
     __asm__ __volatile__
     (
         "lgdt %0            \n"
@@ -27,7 +30,7 @@ void gdt_table_init(void)
         "push %%rax         \n"
         "retfq              \n"
         "1:                 \n"
-        : : "m"(*gdtr)
+        : : "m"(gdtr)
         : "rax"
     );
 }
