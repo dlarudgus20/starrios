@@ -23,6 +23,8 @@ void kmain(void)
     pic_set_mask(~(PIC_MASKBIT_SLAVE | PIC_MASKBIT_KEYBOARD));
     asm_sti();
 
+    term_write_string(TERM_COLOR_LOG, "boot...ok\n");
+
     intr_loop();
 }
 

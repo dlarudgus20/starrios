@@ -98,7 +98,7 @@ pm_start:
     // clear screen
     mov $0xb8000, %edi
     mov $1000, %ecx
-    xor %eax, %eax
+    mov $0x07000700, %eax
     repne stosl
 
     // check if cpuid is suppported
