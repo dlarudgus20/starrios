@@ -3,7 +3,7 @@ CONFIG ?= debug
 CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fpack-struct \
 	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-error=unused-variable
 ASFLAGS +=
-LDFLAGS += -ffreestanding -nostdlib -Xlinker --orphan-handling=error
+LDFLAGS += -ffreestanding -nostdlib
 OBJDUMP_FLAGS +=
 # NM_FLAGS += --line-numbers --print-size --print-armap --numeric-sort
 NM_FLAGS += --print-size --print-armap --numeric-sort

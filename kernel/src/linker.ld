@@ -47,15 +47,4 @@ SECTIONS
     }
 
     __bss_size = __bss_end - __bss_start;
-
-    . = 0;
-    .debug : { *(.debug*) }
-    .comment : { *(.comment) }
-
-    /DISCARD/ :
-    {
-        *(.eh_frame)
-        *(.got .got.plt .iplt .igot.plt)
-        *(.rela.*)
-    }
 }

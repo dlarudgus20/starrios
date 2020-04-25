@@ -18,7 +18,9 @@ TARGET_ELF := $(DIR_BIN)/$(TARGET_NAME).elf
 PHONY_TARGETS += all build rebuild mostlyclean clean
 .PHONY: $(PHONY_TARGETS)
 
-rebuild: clean build
+rebuild:
+	make clean
+	make build
 
 mostlyclean:
 	-rm -rf $(DIR_OBJ)

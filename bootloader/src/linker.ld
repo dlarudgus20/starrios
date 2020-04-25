@@ -6,12 +6,4 @@ SECTIONS
     {
         *(.boot)
     }
-
-    .debug : { *(.debug*) }
-
-    /DISCARD/ :
-    {
-        *(.text .data .bss)
-        *(.rela.got .got .got.plt .iplt .rela.iplt .igot.plt)
-    }
 }

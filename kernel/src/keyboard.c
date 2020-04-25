@@ -112,11 +112,6 @@ void intc_keyboard(struct interrupt_context* rsp)
 
 void intr_queue_keyboard(uint32_t data)
 {
-    static char tbl[] = "0123456789abcdef";
-    static int x = 0;
-    term_put_char_at(tbl[(data >> 4) & 0xf], x++, 1);
-    term_put_char_at(tbl[data & 0xf], x++, 1);
-
     uint16_t keycode;
     uint8_t scan = data & 0xff;
     if (assemble_keycode_from_scan_sequence(&g_keyboard.kca_state, scan, &keycode))
@@ -154,13 +149,9 @@ void intr_queue_keyboard(uint32_t data)
                 break;
         }
 
-        term_put_char_at(tbl[(cascii >> 4) & 0xf], 0, 0);
-        term_put_char_at(tbl[cascii & 0xf], 1, 0);
-        term_put_char_at(cascii, 3, 0);
-
         if (cascii != 0 && keycode_is_pushed(keycode))
         {
-            //term_on_input(cascii);
+            term_on_input(cascii);
         }
     }
 }

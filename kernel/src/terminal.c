@@ -132,12 +132,20 @@ void term_cls(void)
 
 void term_write_string_at(uint16_t x, uint16_t y, uint8_t color, const char* str)
 {
-
+    for (int idx = 0; str[idx] != 0; ++idx)
+    {
+        term_put_entry_at(x++, y, color, str[idx]);
+    }
 }
 
 void term_write_format_at(uint16_t x, uint16_t y, uint8_t color, const char* format, ...)
 {
-
+    char buf[1024];
+    va_list va;
+    va_start(va, format);
+    vsnprintf(buf, sizeof(buf), format, va);
+    term_write_string_at(x, y, color, buf);
+    va_end(va);
 }
 
 void term_write_status_string(const char* str)

@@ -1,4 +1,4 @@
-﻿CFLAGS := -m32
+﻿CFLAGS :=
 
 .PHONY: all mostlyclean clean
 
