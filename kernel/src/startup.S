@@ -3,6 +3,7 @@
 .extern _entry
 
 .set PAGE_TABLE, 0x005f0000
+.set MEMORY_MAP, 0x6000
 
 .section .startup, "ax", @progbits
 
@@ -28,6 +29,39 @@ startup:
     mov $a20_failmsg, %si
     jmp panic16
 1:
+
+    // memory detection
+    xor %bp, %bp            // counter variable
+    xor %ebx, %ebx          // initially ebx=0
+    mov %bx, %es            // es:di -> buffer
+    mov $MEMORY_MAP + 8, %di
+0:
+    movl $1, %es:20(%di)    // allow ACPI 3.x entry
+    mov $0x534d4150, %edx   // magic number
+    mov $24, %ecx           // request 24 bytes
+    mov $0xe820, %eax
+    int $0x15               // ebx <- some internal value
+    mov $a20_failmsg, %si   // cl <- stored bytes
+    jc panic16
+    cmp $0x534d4150, %eax
+    jne panic16
+1:
+    jcxz 3f                 // ignore if bytes=0
+    cmp $20, %cl            // or "ignore" ACPI 3.x attribute is 1
+    jbe 2f
+    testb $1, %es:20(%di)
+    jz 3f
+2:
+    mov %es:8(%di), %ecx    // ignore if length=0
+    or %es:12(%di), %ecx
+    jz 3f
+    inc %bp
+    add $24, %di
+3:
+    test %ebx, %ebx         // ebx=0 if end of list
+    jnz 0b
+    mov %bp, (MEMORY_MAP)
+    clc
 
     // enter protected mode
     lgdt gdtr
@@ -298,4 +332,5 @@ gdt:
 gdt_end:
 
 a20_failmsg: .asciz "Cannot enable A20 gate"
+mem_failmsg: .asciz "Cannot detect memory"
 lm_failmsg: .asciz "This computer does not support 64bit mode"

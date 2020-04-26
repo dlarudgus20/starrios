@@ -1,5 +1,4 @@
 #include "terminal.h"
-#include "keycode.h"
 #include "string.h"
 #include "asm.h"
 #include <stdarg.h>
@@ -10,9 +9,9 @@ static struct term_pos scrcur = { 0, 0 };
 static struct term_pos inpcur = { 0, 24 };
 static uint8_t input_beg = 0;
 static char last_input[81];
+static bool input_completed = false;
 
-enum term_mode { NORMAL, INPUT };
-static int mode = NORMAL;
+static int mode = TERM_MODE_NORMAL;
 
 static struct term_pos term_write_char_at(uint8_t color, uint8_t col, uint8_t row, char ch);
 static void scroll();
@@ -159,7 +158,7 @@ void term_panic(const char* message)
 
 void term_mode_normal(void)
 {
-    mode = NORMAL;
+    mode = TERM_MODE_NORMAL;
     term_set_status_color(TERM_COLOR_STATUS);
     term_write_status("-- NORMAL --");
     update_cursor();
@@ -169,29 +168,33 @@ void term_mode_input(const char* prompt)
 {
     int len = strlen(prompt);
 
-    mode = INPUT;
+    mode = TERM_MODE_INPUT;
     term_set_status_color(TERM_COLOR_INPUT);
     term_write_stat_f("%78s", prompt);
     inpcur.col = input_beg = min(len, 78);
+    input_completed = false;
     update_cursor();
+}
+
+enum term_mode term_get_mode(void)
+{
+    return mode;
+}
+
+bool term_get_input(char* buf, size_t size)
+{
+    if (!input_completed)
+        return false;
+
+    strncpy(buf, last_input, size);
+    buf[size - 1] = 0;
+    return true;
 }
 
 void term_on_input(uint8_t cascii)
 {
-    if (mode != NORMAL && cascii == CASCII_ESC)
-    {
-        term_mode_normal();
+    if (mode != TERM_MODE_INPUT)
         return;
-    }
-    else if (mode == NORMAL && cascii == ':')
-    {
-        term_mode_input(":");
-        return;
-    }
-    else if (mode != INPUT)
-    {
-        return;
-    }
 
     if (cascii == '\n')
     {
@@ -202,6 +205,7 @@ void term_on_input(uint8_t cascii)
                 break;
         }
         last_input[sizeof(last_input) - 1] = 0;
+        input_completed = true;
         term_mode_normal();
     }
     else if (cascii == '\b')
@@ -235,7 +239,7 @@ static void scroll()
 
 static void update_cursor()
 {
-    struct term_pos cur = (mode == NORMAL) ? scrcur : inpcur;
+    struct term_pos cur = (mode == TERM_MODE_NORMAL) ? scrcur : inpcur;
     uint16_t pos = cur.row * 80 + cur.col;
     asm_out8(0x3d4, 0x0f);
     asm_out8(0x3d4 + 1, (uint8_t)pos);

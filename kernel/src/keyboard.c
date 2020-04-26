@@ -4,7 +4,7 @@
 #include "idt.h"
 #include "intr_queue.h"
 #include "syslock.h"
-#include "terminal.h"
+#include "coshell.h"
 #include "asm.h"
 
 enum
@@ -151,7 +151,7 @@ void intr_queue_keyboard(uint32_t data)
 
         if (cascii != 0 && keycode_is_pushed(keycode))
         {
-            term_on_input(cascii);
+            coshell_on_input(cascii);
         }
     }
 }

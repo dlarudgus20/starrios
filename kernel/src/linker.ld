@@ -34,6 +34,12 @@ SECTIONS
     __kernel_size = __kernel_end - __kernel_start;
     __kernel_lma_end = __kernel_lma_start + __kernel_size;
 
+    .eh_frame (NOLOAD) :
+    {
+        *(.eh_frame)
+        . = ALIGN(16);
+    }
+
     __bss_displacement = 0xffff800000100000 - .;
     . = 0xffff800000100000;
 

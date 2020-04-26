@@ -20,6 +20,9 @@ char* strcpy(char* restrict dest, const char* restrict src);
 char* strncpy(char* restrict dest, const char* restrict src, size_t count);
 char* strcat(char* restrict dest, const char* restrict src);
 int strcmp(const char* lhs, const char* rhs);
+int strncmp(const char *lhs, const char *rhs, size_t count);
+char *strchr(const char *str, int ch);
+char *strchr_not(const char *str, int ch);
 
 int vsnprintf(char *buf, size_t size, const char *format, va_list va);
 int snprintf(char *buf, size_t size, const char *format, ...);

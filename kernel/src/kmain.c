@@ -2,7 +2,9 @@
 #include "idt.h"
 #include "pic.h"
 #include "keyboard.h"
+#include "memory.h"
 #include "terminal.h"
+#include "coshell.h"
 #include "intr_queue.h"
 #include "asm.h"
 
@@ -11,6 +13,7 @@ static void intr_loop(void);
 void kmain(void)
 {
     term_init();
+    coshell_init();
 
     gdt_table_init();
     idt_table_init();
@@ -19,6 +22,8 @@ void kmain(void)
     intr_queue_init();
 
     keyboard_init();
+
+    mem_init();
 
     pic_set_mask(~(PIC_MASKBIT_SLAVE | PIC_MASKBIT_KEYBOARD));
     asm_sti();

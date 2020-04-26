@@ -1,7 +1,7 @@
 CONFIG ?= debug
 
 CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fpack-struct \
-	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-error=unused-variable
+	-std=c99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-error=unused-variable -Wno-error=unused-function
 ASFLAGS +=
 LDFLAGS += -ffreestanding -nostdlib
 OBJDUMP_FLAGS +=

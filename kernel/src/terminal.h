@@ -32,6 +32,12 @@ enum term_color
     TERM_COLOR_PANIC = term_make_color(TERM_RED, TERM_WHITE),
 };
 
+enum term_mode
+{
+    TERM_MODE_NORMAL,
+    TERM_MODE_INPUT,
+};
+
 struct term_pos
 {
     uint8_t col;
@@ -53,4 +59,7 @@ void term_panic(const char* message);
 
 void term_mode_normal(void);
 void term_mode_input(const char* prompt);
+enum term_mode term_get_mode(void);
+
+bool term_get_input(char* buf, size_t size);
 void term_on_input(uint8_t cascii);

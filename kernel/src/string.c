@@ -83,7 +83,7 @@ char* strncpy(char* restrict dest, const char* restrict src, size_t count)
     for (; count != 0; count--)
     {
         *dest++ = *src;
-        if (*src++ != '\0')
+        if (*src++ == '\0')
             break;
     }
     return dest;
@@ -114,4 +114,43 @@ int strcmp(const char* lhs, const char* rhs)
 
         lhs++; rhs++;
     }
+}
+
+int strncmp(const char *lhs, const char *rhs, size_t count)
+{
+    int ret;
+
+    while (count-- > 0)
+    {
+        if ((ret = *lhs - *rhs) != 0)
+            return ret;
+        if (*lhs == '\0')
+            return 0;
+
+        lhs++; rhs++;
+    }
+
+    return 0;
+}
+
+char *strchr(const char *str, int ch)
+{
+    while (*str != '\0')
+    {
+        if (*str == ch)
+            return (char *)str;
+        str++;
+    }
+    return NULL;
+}
+
+char *strchr_not(const char *str, int ch)
+{
+    while (*str != '\0')
+    {
+        if (*str != ch)
+            return (char *)str;
+        str++;
+    }
+    return NULL;
 }
