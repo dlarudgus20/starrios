@@ -54,6 +54,8 @@ static void on_line_input(const char* line)
     char buf[strlen(line) + 1];
     strcpy(buf, line);
 
+    term_write_format(TERM_COLOR_DEFAULT, "> %s\n", line);
+
     char* cmd = strchr_not(buf, ' ');
     if (!cmd)
         return;

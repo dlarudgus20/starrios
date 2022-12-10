@@ -29,6 +29,7 @@ void kmain(void)
     asm_sti();
 
     term_write_string(TERM_COLOR_LOG, "boot...ok\n");
+    term_write_string(TERM_COLOR_DEFAULT, "press ':' to input commands\n");
 
     intr_loop();
 }
